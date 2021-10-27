@@ -57,7 +57,7 @@ class SROIE2019(datasets.GeneratorBasedBuilder):
                     "tokens": datasets.Sequence(datasets.Value("string")),
                     "ner_tags": datasets.Sequence(
                         datasets.features.ClassLabel(
-                            names=["company", "date", "address", "total", "O"] #sorted(list(self._ner_tags))
+                            names=["company", "date", "address", "total", "O"]  #sorted(list(self._ner_tags))
                         )
                     )
                 }
@@ -147,3 +147,18 @@ class HFSREIO2019Dataset(object):
 
     def validation(self):
         return self._dataset["validation"]
+
+if __name__ == '__main__':
+    config = DownloadConfig(cache_dir=os.path.join(str(Path.home()), '.mozhi'))
+    dataset = SROIE2019()
+    dataset.download_and_prepare(download_config=config)
+    dataset = dataset.as_dataset()
+
+    print(dataset['train'])
+    print(dataset['test'])
+    print(dataset['validation'])
+
+    print("List of tags: ", dataset['train'].features['ner_tags'].feature.names)
+
+
+    print("First sample: ", dataset['train'][0])
