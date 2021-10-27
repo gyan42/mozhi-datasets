@@ -57,7 +57,7 @@ class SROIE2019(datasets.GeneratorBasedBuilder):
                     "tokens": datasets.Sequence(datasets.Value("string")),
                     "ner_tags": datasets.Sequence(
                         datasets.features.ClassLabel(
-                            names=sorted(list(self._ner_tags))
+                            names=["company", "date", "address", "total", "O"] #sorted(list(self._ner_tags))
                         )
                     )
                 }
@@ -116,7 +116,7 @@ class HFSREIO2019Dataset(object):
     """
     """
     NAME = "HFSREIO2019Dataset"
-    
+
     def __init__(self):
         config = DownloadConfig(cache_dir=os.path.join(str(Path.home()), '.mozhi'))
         self._dataset = SROIE2019()
