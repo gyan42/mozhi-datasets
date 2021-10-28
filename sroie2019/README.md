@@ -7,6 +7,9 @@ Drive URL: https://drive.google.com/open?id=1ShItNWXyiY1tFDM5W02bceHuJjyeeJl2
 Drive 2 Link: https://drive.google.com/file/d/1cD8Y_qzSaZPjMskFIwI7M6TIEz1P59Pd/view?usp=sharing
 
 
+**Colab Notebook** : https://colab.research.google.com/gist/Mageswaran1989/87a04a5064dbc9d59799cad5e9fa8fdd/hftransformerwithcustom-ner-datset.ipynb#scrollTo=9Eq6T2HuTa4h
+
+
 Tasks - ICDAR 2019 Robust Reading Challenge on Scanned Receipts OCR and Information Extraction
 Dataset and Annotations
 
