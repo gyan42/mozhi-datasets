@@ -35,18 +35,23 @@ class SROIE2019(datasets.GeneratorBasedBuilder):
 
     def __init__(self,
                  *args,
-                 url="https://github.com/gyan42/mozhi-datasets/tree/main/sroie2019/version1/",
+                 cache_dir,
+                 # https://raw.githubusercontent.com/gyan42/mozhi-datasets/main/sroie2019/version1/
+                 # https://github.com/davidsbatista/NER-datasets/raw/master/CONLL2003/
+                 # https://github.com/gyan42/mozhi-datasets/tree/main/sroie2019/version1/
+                 # https://github.com/gyan42/mozhi-datasets/raw/master/sroie2019/version1/
+                 url="https://raw.githubusercontent.com/gyan42/mozhi-datasets/main/sroie2019/version1/",
                  train_file="train.txt",
                  val_file="valid.txt",
                  test_file="test.txt",
                  ner_tags=("company", "date", "address", "total", "O"),
                  **kwargs):
-        super(SROIE2019, self).__init__(*args, **kwargs)
+        self._ner_tags = ner_tags
         self._url = url
         self._train_file = train_file
         self._val_file = val_file
         self._test_file = test_file
-        self._ner_tags = ner_tags
+        super(SROIE2019, self).__init__(*args, cache_dir=cache_dir, **kwargs)
 
     def _info(self):
         return datasets.DatasetInfo(
@@ -57,7 +62,7 @@ class SROIE2019(datasets.GeneratorBasedBuilder):
                     "tokens": datasets.Sequence(datasets.Value("string")),
                     "ner_tags": datasets.Sequence(
                         datasets.features.ClassLabel(
-                            names=["company", "date", "address", "total", "O"]  #sorted(list(self._ner_tags))
+                            names=sorted(list(self._ner_tags))
                         )
                     )
                 }
@@ -118,13 +123,17 @@ class HFSREIO2019Dataset(object):
     NAME = "HFSREIO2019Dataset"
 
     def __init__(self):
-        config = DownloadConfig(cache_dir=os.path.join(str(Path.home()), '.mozhi'))
-        self._dataset = SROIE2019()
-        self._dataset.download_and_prepare(download_config=config)
+        cache_dir = os.path.join(str(Path.home()), '.mozhi')
+        print("Cache directory: ", cache_dir)
+        os.makedirs(cache_dir, exist_ok=True)
+        download_config = DownloadConfig(cache_dir=cache_dir)
+        self._dataset = SROIE2019(cache_dir=cache_dir)
+        print("Cache1 directory: ",  self._dataset.cache_dir)
+        self._dataset.download_and_prepare(download_config=download_config)
         self._dataset = self._dataset.as_dataset()
 
     @property
-    def datasets(self):
+    def dataset(self):
         return self._dataset
 
     @property
@@ -148,11 +157,12 @@ class HFSREIO2019Dataset(object):
     def validation(self):
         return self._dataset["validation"]
 
+
 if __name__ == '__main__':
-    config = DownloadConfig(cache_dir=os.path.join(str(Path.home()), '.mozhi'))
-    dataset = SROIE2019()
-    dataset.download_and_prepare(download_config=config)
-    dataset = dataset.as_dataset()
+    # config = DownloadConfig(cache_dir=os.path.join(str(Path.home()), '.mozhi'))
+    # dataset = SROIE2019()
+    # dataset.download_and_prepare(download_config=config)
+    dataset = HFSREIO2019Dataset().dataset
 
     print(dataset['train'])
     print(dataset['test'])

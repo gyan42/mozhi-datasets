@@ -64,7 +64,7 @@ if __name__ == "__main__":
     hf_model.config.id2label = hf_dataset.id2label
     hf_model.config.label2id = hf_dataset.label2id
 
-    tokenized_datasets = hf_dataset.datasets.map(hf_preprocessor.tokenize_and_align_labels, batched=True)
+    tokenized_datasets = hf_dataset.dataset.map(hf_preprocessor.tokenize_and_align_labels, batched=True)
 
     # ---------------------------------------------------------------------------------------------------
 
