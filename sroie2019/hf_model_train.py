@@ -47,13 +47,13 @@ def compute_metrics(p, label_list):
 
 if __name__ == "__main__":
     model_n_version = "sroie2019v1"
-    max_epochs=3
-    learning_rate=2e-5
-    batch_size=32
-    model_root_dir="~/.mozhi/models/hf/"
+    max_epochs = 25
+    learning_rate = 2e-5
+    batch_size = 32
+    model_root_dir = "~/.mozhi/models/hf/"
 
-    hf_pretrained_model_checkpoint="distilbert-base-uncased"
-    hf_pretrained_tokenizer_checkpoint="distilbert-base-uncased"
+    hf_pretrained_model_checkpoint = "distilbert-base-uncased"
+    hf_pretrained_tokenizer_checkpoint = "distilbert-base-uncased"
 
     hf_dataset = HFSREIO2019Dataset()
     hf_preprocessor = HFTokenizer.init_vf(hf_pretrained_tokenizer_checkpoint=hf_pretrained_tokenizer_checkpoint)
