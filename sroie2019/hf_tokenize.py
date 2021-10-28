@@ -2,6 +2,8 @@ from datasets import load_metric
 import datasets
 from transformers import AutoTokenizer
 
+from sroie2019_dataset import HFSREIO2019Dataset
+
 metric = load_metric("seqeval")
 logger = datasets.logging.get_logger(__name__)
 
@@ -50,3 +52,25 @@ class HFTokenizer(object):
 
         tokenized_inputs["labels"] = labels
         return tokenized_inputs
+
+
+if __name__ == '__main__':
+
+    hf_pretrained_tokenizer_checkpoint = "distilbert-base-uncased"
+    dataset = HFSREIO2019Dataset().dataset
+
+    hf_preprocessor = HFTokenizer.init_vf(hf_pretrained_tokenizer_checkpoint=hf_pretrained_tokenizer_checkpoint)
+
+    tokenized_datasets = dataset.map(hf_preprocessor.tokenize_and_align_labels, batched=True)
+
+    print(dataset)
+
+    print("*" * 100)
+
+    print(tokenized_datasets)
+
+    print("First sample: ", dataset['train'][0])
+
+    print("*" * 100)
+
+    print("First tokenized sample: ", tokenized_datasets['train'][0])

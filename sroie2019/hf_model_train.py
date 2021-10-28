@@ -47,7 +47,7 @@ def compute_metrics(p, label_list):
 
 if __name__ == "__main__":
     model_n_version = "sroie2019v1"
-    max_epochs = 25
+    max_epochs = 50
     learning_rate = 2e-5
     batch_size = 16
     model_root_dir = "~/.mozhi/models/hf/"
@@ -78,8 +78,8 @@ if __name__ == "__main__":
         weight_decay=0.01,
     )
 
-    print(tokenized_datasets["train"])
     data_collator = DataCollatorForTokenClassification(hf_preprocessor.tokenizer)
+
     trainer = Trainer(
         hf_model,
         args,
@@ -93,6 +93,8 @@ if __name__ == "__main__":
     trainer.train()
     trainer.evaluate()
 
+    # Predictions on test dataset and evaluation
+
     predictions, labels, _ = trainer.predict(tokenized_datasets["test"])
     predictions = np.argmax(predictions, axis=2)
 
@@ -101,6 +103,7 @@ if __name__ == "__main__":
         [hf_dataset.labels[p] for (p, l) in zip(prediction, label) if l != -100]
         for prediction, label in zip(predictions, labels)
     ]
+
     true_labels = [
         [hf_dataset.labels[l] for (p, l) in zip(prediction, label) if l != -100]
         for prediction, label in zip(predictions, labels)
