@@ -14,7 +14,7 @@ _DESCRIPTION = """\
 """
 
 
-class SROIE2019Config(datasets.BuilderConfig):
+class SROIE2019LayoutLMConfig(datasets.BuilderConfig):
     """BuilderConfig for SROIE2019"""
 
     def __init__(self, **kwargs):
@@ -23,14 +23,14 @@ class SROIE2019Config(datasets.BuilderConfig):
         Args:
           **kwargs: keyword arguments forwarded to super.
         """
-        super(SROIE2019Config, self).__init__(**kwargs)
+        super(SROIE2019LayoutLMConfig, self).__init__(**kwargs)
 
 
-class SROIE2019(datasets.GeneratorBasedBuilder):
+class SROIE2019LayoutLM(datasets.GeneratorBasedBuilder):
     """SROIE2019 dataset."""
 
     BUILDER_CONFIGS = [
-        SROIE2019Config(name="SROIE2019", version=datasets.Version("1.0.0"), description="SROIE2019 dataset"),
+        SROIE2019LayoutLMConfig(name="SROIE2019LayoutLM", version=datasets.Version("1.0.0"), description="SROIE2019LayoutLM dataset"),
     ]
 
     def __init__(self,
@@ -47,7 +47,7 @@ class SROIE2019(datasets.GeneratorBasedBuilder):
         self._train_file = train_file
         self._val_file = val_file
         self._test_file = test_file
-        super(SROIE2019, self).__init__(*args, cache_dir=cache_dir, **kwargs)
+        super(SROIE2019LayoutLM, self).__init__(*args, cache_dir=cache_dir, **kwargs)
 
     def _info(self):
         return datasets.DatasetInfo(
@@ -56,6 +56,7 @@ class SROIE2019(datasets.GeneratorBasedBuilder):
                 {
                     "id": datasets.Value("string"),
                     "tokens": datasets.Sequence(datasets.Value("string")),
+                    "bboxes": datasets.Sequence(datasets.Sequence(datasets.Value("int64"))),
                     "ner_tags": datasets.Sequence(
                         datasets.features.ClassLabel(
                             names=sorted(list(self._ner_tags))
@@ -97,6 +98,7 @@ class SROIE2019(datasets.GeneratorBasedBuilder):
                             "id": str(guid),
                             "tokens": tokens,
                             "ner_tags": ner_tags,
+                            "bboxes": bboxes
                         }
                         guid += 1
                         tokens = []
@@ -107,7 +109,7 @@ class SROIE2019(datasets.GeneratorBasedBuilder):
                     splits = line.split(" ")
                     tokens.append(splits[0])
                     ner_tags.append(splits[1].strip())
-                    bboxes.append(list(map(lambda xy: int(xy), splits[2].strip())))
+                    bboxes.append(list(map(lambda xy: int(xy), splits[2].strip().split(","))))
             # last example
             yield guid, {
                 "id": str(guid),
@@ -117,17 +119,17 @@ class SROIE2019(datasets.GeneratorBasedBuilder):
             }
 
 
-class HFSREIO2019Dataset(object):
+class HFSREIO2019LayoutLMDataset(object):
     """
     """
-    NAME = "HFSREIO2019Dataset"
+    NAME = "HFSREIO2019LayoutLMDataset"
 
     def __init__(self):
         cache_dir = os.path.join(str(Path.home()), '.mozhi')
         print("Cache directory: ", cache_dir)
         os.makedirs(cache_dir, exist_ok=True)
         download_config = DownloadConfig(cache_dir=cache_dir)
-        self._dataset = SROIE2019(cache_dir=cache_dir)
+        self._dataset = SROIE2019LayoutLM(cache_dir=cache_dir)
         print("Cache1 directory: ",  self._dataset.cache_dir)
         self._dataset.download_and_prepare(download_config=download_config)
         self._dataset = self._dataset.as_dataset()
@@ -162,7 +164,7 @@ if __name__ == '__main__':
     # config = DownloadConfig(cache_dir=os.path.join(str(Path.home()), '.mozhi'))
     # dataset = SROIE2019()
     # dataset.download_and_prepare(download_config=config)
-    dataset = HFSREIO2019Dataset().dataset
+    dataset = HFSREIO2019LayoutLMDataset().dataset
 
     print(dataset['train'])
     print(dataset['test'])
