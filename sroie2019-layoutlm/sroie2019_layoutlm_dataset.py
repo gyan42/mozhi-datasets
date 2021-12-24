@@ -73,14 +73,14 @@ class SROIE2019LayoutLM(datasets.GeneratorBasedBuilder):
         """Returns SplitGenerators."""
         urls_to_download = {
             "train": f"{self._url}{self._train_file}",
-            "dev": f"{self._url}{self._val_file}",
+            "valid": f"{self._url}{self._val_file}",
             "test": f"{self._url}{self._test_file}",
         }
         downloaded_files = dl_manager.download_and_extract(urls_to_download)
 
         return [
             datasets.SplitGenerator(name=datasets.Split.TRAIN, gen_kwargs={"filepath": downloaded_files["train"]}),
-            datasets.SplitGenerator(name=datasets.Split.VALIDATION, gen_kwargs={"filepath": downloaded_files["dev"]}),
+            datasets.SplitGenerator(name=datasets.Split.VALIDATION, gen_kwargs={"filepath": downloaded_files["valid"]}),
             datasets.SplitGenerator(name=datasets.Split.TEST, gen_kwargs={"filepath": downloaded_files["test"]}),
         ]
 
@@ -164,13 +164,19 @@ if __name__ == '__main__':
     # config = DownloadConfig(cache_dir=os.path.join(str(Path.home()), '.mozhi'))
     # dataset = SROIE2019()
     # dataset.download_and_prepare(download_config=config)
-    dataset = HFSREIO2019LayoutLMDataset().dataset
+    dataset = HFSREIO2019LayoutLMDataset()
 
-    print(dataset['train'])
-    print(dataset['test'])
-    print(dataset['validation'])
+    print(dataset.dataset['train'])
+    print(dataset.dataset['test'])
+    print(dataset.dataset['validation'])
 
-    print("List of tags: ", dataset['train'].features['ner_tags'].feature.names)
+    print("\nList of tags: ", dataset.dataset['train'].features['ner_tags'].feature.names)
 
 
-    print("First sample: ", dataset['train'][0])
+    print("\nFirst sample: ")
+    for key in dataset.dataset['train'][0].keys():
+        if key == 'ner_tags':
+            print(dataset.label2id.items())
+        print(key, dataset.dataset['train'][0][key])
+        print("\n")
+        
