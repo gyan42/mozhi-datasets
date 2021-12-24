@@ -13,8 +13,8 @@ class HFTokenizer(object):
 
     def __init__(self,
                  hf_pretrained_tokenizer_checkpoint):
-        self._tokenizer = AutoTokenizer.from_pretrained(hf_pretrained_tokenizer_checkpoint)
-#         self._tokenizer = LayoutLMTokenizer.from_pretrained("microsoft/layoutlm-base-uncased")
+        # self._tokenizer = AutoTokenizer.from_pretrained(hf_pretrained_tokenizer_checkpoint)
+        self._tokenizer = LayoutLMTokenizer.from_pretrained("microsoft/layoutlm-base-uncased")
 
     @property
     def tokenizer(self):

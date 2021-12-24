@@ -55,7 +55,6 @@ if __name__ == "__main__":
     batch_size = 2
     model_root_dir = "~/.mozhi/models/hf/"
 
-    hf_pretrained_model_checkpoint = "distilbert-base-uncased"
     hf_pretrained_tokenizer_checkpoint = "distilbert-base-uncased"
 
     hf_dataset = HFSREIO2019LayoutLMDataset()
