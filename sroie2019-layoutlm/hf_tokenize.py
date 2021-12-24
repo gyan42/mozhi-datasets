@@ -56,8 +56,15 @@ class HFTokenizer(object):
 
             labels.append(label_ids)
 
+        out_bboxes = []
+        for b in examples['bboxes']:
+            # add bounding boxes of cls + sep tokens
+            _bboxes = token_boxes = [[0, 0, 0, 0]] + b + [[1000, 1000, 1000, 1000]]
+            out_bboxes.append(_bboxes)
+            
+            
         tokenized_inputs["labels"] = labels
-        tokenized_inputs["bbox"] = examples[f"bboxes"]
+        tokenized_inputs["bbox"] = out_bboxes
         return tokenized_inputs
 
 
