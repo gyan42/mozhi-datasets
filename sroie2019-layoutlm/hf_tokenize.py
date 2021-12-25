@@ -34,7 +34,8 @@ class HFTokenizer(object):
         
         tokenized_inputs = self._tokenizer(examples["tokens"],
                                            truncation=True,
-                                           is_split_into_words=True)
+                                           is_split_into_words=True,
+                                           pad_to_max_length=True)
 
         
         print('#' * 100)
@@ -44,15 +45,18 @@ class HFTokenizer(object):
         # Zip ner_tags and bboxes and index them
         for i, label_bbox in enumerate(zip(examples[f"ner_tags"], examples['bboxes'])):
             label, bbox = label_bbox[0], label_bbox[1]
+            # Get word ids in each example
             word_ids = tokenized_inputs.word_ids(batch_index=i)
             previous_word_idx = None
             label_ids = []
             _bboxes = [[0, 0, 0, 0]]
+            
             for word_idx in word_ids:
                 # Special tokens have a word id that is None. We set the label to -100 so they are automatically
                 # ignored in the loss function.
                 if word_idx is None:
                     label_ids.append(-100)
+                    _bboxes.append([1000, 1000, 1000, 1000])
                 # We set the label for the first token of each word.
                 elif word_idx != previous_word_idx:
                     label_ids.append(label[word_idx])
@@ -66,11 +70,9 @@ class HFTokenizer(object):
 
             labels.append(label_ids)
             _bboxes.append([1000, 1000, 1000, 1000])
-            out_bboxes.append(_bboxes)   
+            out_bboxes.append(_bboxes[:512])   
             
-         
-        print(type(labels))
-        print(type(out_bboxes))
+      
         tokenized_inputs["labels"] = labels
         tokenized_inputs["bbox"] = out_bboxes
         return tokenized_inputs
