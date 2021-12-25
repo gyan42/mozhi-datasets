@@ -76,7 +76,7 @@ if __name__ == "__main__":
     # ---------------------------------------------------------------------------------------------------
 
     args = TrainingArguments(
-        f"test-ner",
+        f"layoutlm-sreio2019",
         evaluation_strategy="epoch",
         learning_rate=learning_rate,
         per_device_train_batch_size=batch_size,

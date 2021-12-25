@@ -36,9 +36,6 @@ class HFTokenizer(object):
                                            truncation=True,
                                            is_split_into_words=True,
                                            pad_to_max_length=True)
-
-        
-        print('#' * 100)
         labels = []
         out_bboxes = []
         
@@ -107,17 +104,16 @@ if __name__ == '__main__':
     print("*" * 100)
 
     print("First tokenized sample: ")
-    
-   
-        
-    for key in tokenized_datasets['train'][0].keys():
-        print(key, tokenized_datasets['train'][0][key])
+    for key in ["input_ids", "bbox", "labels", "attention_mask"]: #tokenized_datasets['train'][0].keys():
+        print(key, ": \n", tokenized_datasets['train'][0][key])
         print("\n")
         if key == 'input_ids':
             print(hf_tokenizer.tokenizer.convert_ids_to_tokens(tokenized_datasets['train'][0]['input_ids']))
             print("\n")
+        if key == 'labels':
+            print([dataset.id2label.get(label_id, "UNK") for label_id in tokenized_datasets['train'][0]['labels']])
+            print("\n")
     
     print("Check length of all features...")
-    for key in tokenized_datasets['train'][0].keys():
+    for key in ["input_ids", "bbox", "labels", "attention_mask"]:
         print(key, len(tokenized_datasets['train'][0][key]))
-        print("\n")
