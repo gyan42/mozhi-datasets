@@ -27,19 +27,27 @@ class HFTokenizer(object):
     def tokenize_and_align_labels(self,
                                   examples,
                                   label_all_tokens=True):
+        """
+        Transformer that extrapolates labels and bboxes with respect to tokenized word ids.
+        Due to the inherent nature of wordpiece number of tokens will increase 
+        """
         
         tokenized_inputs = self._tokenizer(examples["tokens"],
                                            truncation=True,
                                            is_split_into_words=True)
-        
-        print(tokenized_inputs)
+
         
         print('#' * 100)
         labels = []
-        for i, label in enumerate(examples[f"ner_tags"]):
+        out_bboxes = []
+        
+        # Zip ner_tags and bboxes and index them
+        for i, label_bbox in enumerate(zip(examples[f"ner_tags"], examples['bboxes'])):
+            label, bbox = label_bbox[0], label_bbox[1]
             word_ids = tokenized_inputs.word_ids(batch_index=i)
             previous_word_idx = None
             label_ids = []
+            _bboxes = [[0, 0, 0, 0]]
             for word_idx in word_ids:
                 # Special tokens have a word id that is None. We set the label to -100 so they are automatically
                 # ignored in the loss function.
@@ -48,21 +56,21 @@ class HFTokenizer(object):
                 # We set the label for the first token of each word.
                 elif word_idx != previous_word_idx:
                     label_ids.append(label[word_idx])
+                    _bboxes.append(bbox[word_idx])
                 # For the other tokens in a word, we set the label to either the current label or -100, depending on
                 # the label_all_tokens flag.
                 else:
                     label_ids.append(label[word_idx] if label_all_tokens else -100)
+                    _bboxes.append(bbox[word_idx] if label_all_tokens else -100)
                 previous_word_idx = word_idx
 
             labels.append(label_ids)
-
-        out_bboxes = []
-        for b in examples['bboxes']:
-            # add bounding boxes of cls + sep tokens
-            _bboxes = token_boxes = [[0, 0, 0, 0]] + b + [[1000, 1000, 1000, 1000]]
-            out_bboxes.append(_bboxes)
+            _bboxes.append([1000, 1000, 1000, 1000])
+            out_bboxes.append(_bboxes)   
             
-            
+         
+        print(type(labels))
+        print(type(out_bboxes))
         tokenized_inputs["labels"] = labels
         tokenized_inputs["bbox"] = out_bboxes
         return tokenized_inputs
@@ -107,3 +115,7 @@ if __name__ == '__main__':
             print(hf_tokenizer.tokenizer.convert_ids_to_tokens(tokenized_datasets['train'][0]['input_ids']))
             print("\n")
     
+    print("Check length of all features...")
+    for key in tokenized_datasets['train'][0].keys():
+        print(key, len(tokenized_datasets['train'][0][key]))
+        print("\n")
