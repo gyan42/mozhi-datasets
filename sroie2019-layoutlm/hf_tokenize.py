@@ -46,14 +46,17 @@ class HFTokenizer(object):
             word_ids = tokenized_inputs.word_ids(batch_index=i)
             previous_word_idx = None
             label_ids = []
-            _bboxes = [[0, 0, 0, 0]]
+            _bboxes = []
             
-            for word_idx in word_ids:
+            for i, word_idx in enumerate(word_ids):
                 # Special tokens have a word id that is None. We set the label to -100 so they are automatically
                 # ignored in the loss function.
                 if word_idx is None:
                     label_ids.append(-100)
-                    _bboxes.append([1000, 1000, 1000, 1000])
+                    if i == 0:
+                        _bboxes.append([0, 0, 0, 0])
+                    else:
+                        _bboxes.append([1000, 1000, 1000, 1000])
                 # We set the label for the first token of each word.
                 elif word_idx != previous_word_idx:
                     label_ids.append(label[word_idx])
@@ -70,7 +73,7 @@ class HFTokenizer(object):
             out_bboxes.append(_bboxes[:512])   
             
       
-        tokenized_inputs["labels"] = labels
+        tokenized_inputs["label_ids"] = labels
         tokenized_inputs["bbox"] = out_bboxes
         return tokenized_inputs
 
@@ -104,7 +107,7 @@ if __name__ == '__main__':
     print("*" * 100)
 
     print("First tokenized sample: ")
-    for key in ["input_ids", "bbox", "labels", "attention_mask"]: #tokenized_datasets['train'][0].keys():
+    for key in ["input_ids", "bbox", "label_ids", "attention_mask"]: #tokenized_datasets['train'][0].keys():
         print(key, ": \n", tokenized_datasets['train'][0][key])
         print("\n")
         if key == 'input_ids':
@@ -115,5 +118,5 @@ if __name__ == '__main__':
             print("\n")
     
     print("Check length of all features...")
-    for key in ["input_ids", "bbox", "labels", "attention_mask"]:
+    for key in ["input_ids", "bbox", "label_ids", "attention_mask"]:
         print(key, len(tokenized_datasets['train'][0][key]))
