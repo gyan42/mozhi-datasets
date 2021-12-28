@@ -37,6 +37,7 @@ class HFTokenizer(object):
         tokenized_inputs = self._tokenizer(examples["tokens"],
                                            truncation=True,
                                            is_split_into_words=True,
+                                           max_length=512,
                                            pad_to_max_length=True)
         labels = []
         out_bboxes = []
@@ -139,6 +140,24 @@ if __name__ == '__main__':
     
     for batch in train():
         for example in batch['input_ids']:
+#             print(torch.tensor(example).shape[0])
+            assert torch.tensor(example).shape[0] == 512
+        for example in batch['bbox']:
+            assert torch.tensor(example).shape[0] == 512
+        for example in batch['labels']:
+            assert torch.tensor(example).shape[0] == 512
+        for example in batch['attention_mask']:
+            assert torch.tensor(example).shape[0] == 512
+            
+            
+    def valid():
+        for i in range(0,545, 32):
+            batch = tokenized_datasets['validation'][i:i+32]
+            yield batch
+     
+    for batch in valid():
+        for example in batch['input_ids']:
+#             print(torch.tensor(example).shape[0])
             assert torch.tensor(example).shape[0] == 512
         for example in batch['bbox']:
             assert torch.tensor(example).shape[0] == 512
