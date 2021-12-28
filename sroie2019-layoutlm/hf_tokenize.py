@@ -3,10 +3,12 @@ import datasets
 from transformers import LayoutLMTokenizer
 from transformers import AutoTokenizer
 from sroie2019_layoutlm_dataset import HFSREIO2019LayoutLMDataset
+from transformers import DataCollatorForTokenClassification
 
 metric = load_metric("seqeval")
 logger = datasets.logging.get_logger(__name__)
 
+import torch 
 
 class HFTokenizer(object):
     NAME = "HFTokenizer"
@@ -73,7 +75,7 @@ class HFTokenizer(object):
             out_bboxes.append(_bboxes[:512])   
             
       
-        tokenized_inputs["label_ids"] = labels
+        tokenized_inputs["labels"] = labels
         tokenized_inputs["bbox"] = out_bboxes
         return tokenized_inputs
 
@@ -88,6 +90,8 @@ if __name__ == '__main__':
     hf_tokenizer = HFTokenizer.init_vf(hf_pretrained_tokenizer_checkpoint=hf_pretrained_tokenizer_checkpoint)
 
     tokenized_datasets = hf_dataset.map(hf_tokenizer.tokenize_and_align_labels, batched=True)
+    
+    data_collator = DataCollatorForTokenClassification(hf_tokenizer.tokenizer)
 
 #     print(dataset)
 
@@ -106,8 +110,9 @@ if __name__ == '__main__':
     
     print("*" * 100)
 
+
     print("First tokenized sample: ")
-    for key in ["input_ids", "bbox", "label_ids", "attention_mask"]: #tokenized_datasets['train'][0].keys():
+    for key in ["input_ids", "bbox", "labels", "attention_mask"]: #tokenized_datasets['train'][0].keys():
         print(key, ": \n", tokenized_datasets['train'][0][key])
         print("\n")
         if key == 'input_ids':
@@ -118,5 +123,26 @@ if __name__ == '__main__':
             print("\n")
     
     print("Check length of all features...")
-    for key in ["input_ids", "bbox", "label_ids", "attention_mask"]:
+    for key in ["input_ids", "bbox", "labels", "attention_mask"]:
         print(key, len(tokenized_datasets['train'][0][key]))
+        
+
+    print(tokenized_datasets['train'])
+    
+    def train():
+        for i in range(0, 587, 32):
+            batch = tokenized_datasets['train'][i:i+32]
+            yield batch
+    
+    print(" = " * 100)
+    print("Asserting the size...")
+    
+    for batch in train():
+        for example in batch['input_ids']:
+            assert torch.tensor(example).shape[0] == 512
+        for example in batch['bbox']:
+            assert torch.tensor(example).shape[0] == 512
+        for example in batch['labels']:
+            assert torch.tensor(example).shape[0] == 512
+        for example in batch['attention_mask']:
+            assert torch.tensor(example).shape[0] == 512
