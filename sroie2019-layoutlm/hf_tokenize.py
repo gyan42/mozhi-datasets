@@ -130,7 +130,7 @@ if __name__ == '__main__':
     print(tokenized_datasets['train'])
     
     def train():
-        for i in range(0, 587, 32):
+        for i in range(0,545, 32):
             batch = tokenized_datasets['train'][i:i+32]
             yield batch
     
@@ -147,6 +147,6 @@ if __name__ == '__main__':
         for example in batch['attention_mask']:
             assert torch.tensor(example).shape[0] == 512
             
-    for batch in train():
-        for example in batch['bbox']:
-            print(example)
+#     for batch in train():
+#         for example in batch['bbox']:
+#             print(example)

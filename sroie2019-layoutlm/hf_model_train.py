@@ -50,9 +50,9 @@ def compute_metrics(p, label_list):
 
 if __name__ == "__main__":
     model_n_version = "sroie2019v1"
-    max_epochs = 50
+    max_epochs = 5
     learning_rate = 2e-5
-    batch_size = 2
+    batch_size = 8
     model_root_dir = "~/.mozhi/models/hf/"
 
     hf_pretrained_tokenizer_checkpoint = "distilbert-base-uncased"
