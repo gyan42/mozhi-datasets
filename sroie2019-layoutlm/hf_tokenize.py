@@ -146,3 +146,7 @@ if __name__ == '__main__':
             assert torch.tensor(example).shape[0] == 512
         for example in batch['attention_mask']:
             assert torch.tensor(example).shape[0] == 512
+            
+    for batch in train():
+        for example in batch['bbox']:
+            print(example)
